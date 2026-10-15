@@ -1,0 +1,11 @@
+{
+  "seed": 0,
+  "epochs": 100,
+  "lr": 0.0002,
+  "width": 32,
+  "cameras": 8,
+  "predictive_weight": 0.1,
+  "variance_floor": 1e-06,
+  "crop": 128,
+  "device": "cpu"
+}
