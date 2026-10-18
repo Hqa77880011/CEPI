@@ -7,5 +7,7 @@
   "predictive_weight": 0.1,
   "variance_floor": 1e-06,
   "crop": 64,
-  "device": "cpu"
+  "device": "cpu",
+  "input_source": "rendered_calibrated_raw",
+  "perceptual_metric": "rgb_l1"
 }

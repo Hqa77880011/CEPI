@@ -184,14 +184,19 @@ def isp(mosaic, cfa, wb, matrix):
 
 
 def evaluate(a, c):
-    import lpips
-
     state = torch.load(a.checkpoint, map_location="cpu", weights_only=True)
     c = state["config"]
     model = Restoration(c["width"], c["cameras"]).to(c["device"])
     model.load_state_dict(state["model"])
     model.eval()
-    perceptual = lpips.LPIPS(net="alex").to(c["device"]).eval()
+    metric_name = c.get("perceptual_metric", "lpips")
+    if metric_name == "lpips":
+        import lpips
+        perceptual = lpips.LPIPS(net="alex").to(c["device"]).eval()
+    elif metric_name == "rgb_l1":
+        perceptual = None
+    else:
+        raise ValueError("perceptual_metric must be lpips or rgb_l1")
     rows = []
     bins = []
     variant = state["variant"] if a.control == "none" else a.control
@@ -229,7 +234,7 @@ def evaluate(a, c):
             rgb = lambda x: (
                 torch.from_numpy(x).permute(2, 0, 1)[None].to(c["device"]) * 2 - 1
             )
-            perceptual_distance = float(
+            perceptual_distance = float(np.mean(np.abs(estimated - reference))) if perceptual is None else float(
                 perceptual(rgb(estimated), rgb(reference)).mean()
             )
         levels = np.arange(0.1, 1, 0.1)
@@ -246,7 +251,7 @@ def evaluate(a, c):
                 camera=int(raw["camera"]),
                 method=variant,
                 psnr=float(-10 * np.log10(max(mse, 1e-12))),
-                lpips=perceptual_distance,
+                **{metric_name: perceptual_distance},
                 predictive_nll=predictive_loss,
                 innovation_mean_error=abs(float(np.mean(innovation))),
                 innovation_variance_error=abs(float(np.var(innovation)) - 1),
