@@ -23,7 +23,7 @@ python -m cepi.synthetic --output data/generated --groups 30 --size 64 --seed 17
 cepi prepare --config configs/reproduce.json --input data/generated/manifest.json --data data/reproduce
 ```
 
-For external data: Download [SID](https://github.com/cchen156/Learning-to-See-in-the-Dark) and [ELD](https://github.com/Vandermode/ELD). Export registered, black-level-corrected linear mosaics to NPZ files with `source,target,clean` [height,width], boolean `mask_source,mask_target`, scalar source/target `exposure` and `gain`, scalar integer `camera`, and source/target `noise` [shot_a,read_b,row_variance,quantization_variance]. Fields use prefixes such as `source_exposure`. Exposures/gains are normalized to the clean radiance reference so `h(r)=exposure*gain*r`. Noise coefficients must use those normalized observation units. Frozen calibration comes from independent camera measurements, not test images.
+For external data: Download [SID](https://github.com/cchen156/Learning-to-See-in-the-Dark) and [ELD](https://github.com/Vandermode/ELD). Export registered, black-level-corrected linear mosaics to NPZ files with `source,target,clean` [height,width], boolean `mask_source,mask_target`, scalar source/target `exposure` and `gain`, scalar integer `camera`, and source/target `noise` [shot_a,read_b,row_variance,quantization_variance]. Also include integer `cfa` [2,2] (RGB channel indices), `white_balance` [3] and `color_matrix` [3,3]. The JSON manifest needs `id,path,scene,split`; use `train`, `validation` and `test`, keeping every scene in one split. Fields use prefixes such as `source_exposure`. Exposures/gains are normalized to the clean radiance reference so `h(r)=exposure*gain*r`. Noise coefficients must use those normalized observation units. Frozen calibration comes from independent camera measurements, not test images.
 
 ## Training and inference
 
@@ -54,4 +54,4 @@ The selected commands write their generated inputs under `data/generated/`, prep
 
 ## Verification
 
-Source checks used Python 3.13.5. Installed dependency metadata: numpy 2.1.3, torch 2.7.1+cu118, scipy 1.15.3, matplotlib 3.10.0. Python AST, configuration files, CLI parser definitions and source input/output paths were checked without invoking command handlers. Training, full evaluation and CI were not run for this review.
+Source checks used Python 3.13.5. Installed dependency metadata: numpy 2.1.3, torch 2.7.1+cu118, scipy 1.15.3, matplotlib 3.10.0. Python AST, configuration files, CLI parser definitions and source input/output paths were checked without invoking command handlers. Training and full evaluation were not run for this review. The GitHub Actions workflow checks packaging and source code.
