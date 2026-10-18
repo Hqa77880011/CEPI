@@ -44,6 +44,20 @@ Train separate `supervised`, `noise2noise`, `same_exposure` and `deterministic` 
 
 RAW PSNR uses unit radiance range on valid paired pixels. The shared deterministic ISP performs normalized local CFA interpolation, white balance, color matrix and sRGB transfer; invalid predicted pixels are filled with the common reference before LPIPS, giving no metric weight to restoration at excluded locations. This compact ISP and backbone are explicit implementation choices, and their perceptual scores should not be mixed with a different ISP. LPIPS downloads published AlexNet weights on first use. Comparison CSV/JSON and PNG/SVG plots use generated measurements.
 
+## Registered compact reproduction setting
+
+Compact width-16 shared RAW posterior, 64-pixel paired crops, 30 fixed epochs and registered camera IDs. Training produces its own posterior checkpoint; a paper-specific pretrained posterior is not required.
+
+Run from the repository root after installation. The following commands use the registered setting; they are provided for execution and have not been run as part of the source review.
+
+```bash
+cepi prepare --config configs/reproduce.json --input data/manifest.json --data data/reproduce
+cepi train --config configs/reproduce.json --data data/reproduce --output runs/reproduce
+cepi evaluate --config configs/reproduce.json --data data/reproduce --checkpoint runs/reproduce/model.pt --output runs/reproduce
+```
+
+Required external inputs: registered linear RAW/clean pairs, frozen camera noise/ISP metadata, and locally cached LPIPS weights. The formal input fields are specified above; preparation/training interfaces consume those fields directly. No particular paper dataset or pretrained task model is assumed beyond these declared inputs.
+
 ## Multiple seeds
 
 Run matched configurations with different seeds in separate directories, then aggregate the generated metric files:
